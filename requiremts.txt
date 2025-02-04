@@ -1,0 +1,6 @@
+notebook
+pandas
+numpy
+opencv-python
+torch
+ipykernel

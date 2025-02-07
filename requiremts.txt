@@ -1,6 +1,13 @@
 notebook
+ipykernel
+
 pandas
 numpy
 opencv-python
 torch
-ipykernel
+torchvision
+timm
+av
+
+transformers
+accelerate

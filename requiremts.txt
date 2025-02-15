@@ -3,11 +3,10 @@ ipykernel
 
 pandas
 numpy
-opencv-python
+
 torch
 torchvision
-timm
-av
-
+decord
+peft
 transformers
-accelerate
+bitsandbytes

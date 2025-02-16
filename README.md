@@ -26,6 +26,7 @@ This project classifies 10-second video clips from TV streams into "commercial" 
 - **Feature Extraction:** AutoImageProcessor Feature Extractor (extracts and normalizes frames)
 - **Optimization:** AdamW with weight decay
 - **Evaluation Metrics:** F1-score, accuracy
+  ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
 
 ### **Running Training**
 

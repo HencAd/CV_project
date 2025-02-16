@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -108,4 +108,182 @@
         <div id="highlightBar" class="highlight"></div>
     </section>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body> -->
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Analysis Upload</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background: linear-gradient(to right, #CDEBF7, #A6D4F2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        .device {
+            position: relative;
+            width: 845px;
+            height: 890px;
+            background: url('{{ url_for("static", filename="img/DALL·E-2025-02-15-17.13.png") }}')  no-repeat center center fixed;
+        }
+        .drop-zone, .video-container {
+            position: absolute;
+            top: 10%;
+            left: 31%;
+            width: 42%;
+            height: 33%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+        }
+        .drop-zone {
+            background: rgba(173, 216, 230, 0.4);
+            border: 2px dashed #000;
+            color: black;
+            font-weight: bold;
+        }
+        .video-container {
+            background: rgba(0, 0, 0, 0.5);
+            display: none; /* Na początku niewidoczny */
+        }
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            display: none; /* Na początku wideo jest niewidoczne */
+        }
+        .upload-btn {
+            position: absolute;
+            bottom: 23%;
+            left: 52%;
+            transform: translateX(-50%);
+            background: transparent;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            min-width: 40%;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            position: absolute;
+            bottom: 7%;
+            left: 31%;
+            min-width: 23rem;
+            padding: 3rem;
+            background: #dee2e6;
+            border-radius: 33px;
+        }
+    </style>
+</head>
+<body>
+    <div class="device">
+        <!-- Drop zone dla przesyłania pliku -->
+        <div class="drop-zone" id="dropZone">Drop your video</div>
+
+        <!-- Kontener do odtwarzania wideo -->
+        <div class="video-container" id="videoContainer">
+            <video id="videoPreview" autoplay loop></video>
+        </div>
+        <button class="upload-btn" id="uploadBtn"> ... </button>
+        <div class="result" id="result"></div>
+    </div>
+    
+    <!-- <script>
+        const dropZone = document.getElementById('dropZone');
+        const videoPreview = document.getElementById('videoPreview');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const resultDiv = document.getElementById('result');
+        let file;
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.border = '2px solid blue';
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.border = '2px dashed #000';
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            file = e.dataTransfer.files[0];
+            if (file.type.startsWith('video/')) {
+                const url = URL.createObjectURL(file);
+                videoPreview.src = url;
+                videoPreview.style.display = 'block';
+                dropZone.style.display = 'none';
+            }
+        });
+        uploadBtn.addEventListener('click', async () => {
+            if (!file) return alert('Najpierw załaduj plik wideo.');
+            const formData = new FormData();
+            formData.append('file', file);
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            resultDiv.innerHTML = `Result: ${data.result} (Confidence: ${data.confidence}%)`;
+        });
+    </script>
 </body>
+</html> -->
+
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const videoPreview = document.getElementById('videoPreview');
+    const videoContainer = document.getElementById('videoContainer');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const resultDiv = document.getElementById('result');
+    let file;
+
+    // Obsługuje przeciąganie pliku
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.border = '2px solid blue';
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.style.border = '2px dashed #000';
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        file = e.dataTransfer.files[0];
+        if (file.type.startsWith('video/')) {
+            console.log("File detected: ", file);
+            const url = URL.createObjectURL(file);
+            console.log
+            videoPreview.src = url;
+            videoPreview.style.display = 'block'; // Wideo staje się widoczne
+            videoContainer.style.display = 'block'; // Pokazanie kontenera wideo
+            dropZone.style.display = 'none'; // Ukrycie dropzone
+        }
+    });
+
+    // Obsługa przycisku upload
+    uploadBtn.addEventListener('click', async () => {
+        if (!file) return alert('Najpierw załaduj plik wideo.');
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        resultDiv.innerHTML = `Result: ${data.result} (Confidence: ${data.confidence}%)`;
+    });
+</script>
+</body>
+</html>

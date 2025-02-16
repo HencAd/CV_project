@@ -1,12 +1,14 @@
-notebook
-ipykernel
-
 pandas
 numpy
 
 torch
 torchvision
+transformers
 decord
 peft
-transformers
-bitsandbytes
+tqdm
+scikit-learn
+Pillow
+
+flask
+

@@ -30,10 +30,7 @@ This project classifies 10-second video clips from TV streams into "commercial" 
 ### **Running Training**
 
 `python train_commercial_content_classification.py --dataset_dir=<dataset_dir>  --models_dir=.<models_dir> --log_dir=<logs_dir> --learning_rate=2e-4 --epochs=10  --batch_size=4`
-  <br>
-  <img src="https://github.com/HencAd/CV_project/blob/Ela/W%26B%20Chart%2016.02.2025%2C%2015_46_26.png" width="400"/>
-  <img src="https://github.com/HencAd/CV_project/blob/Ela/W%26B%20Chart%2016.02.2025%2C%2015_46_39.png" width="400"/>
-  <img src="https://github.com/HencAd/CV_project/blob/Ela/W%26B%20Chart%2016.02.2025%2C%2015_47_36.png" width="400"/>
+
 ## **Classification & Evaluation**
 
 `classify_commercial_content.py` can classify new videos or evaluate the model on the test dataset.
@@ -45,9 +42,6 @@ This project classifies 10-second video clips from TV streams into "commercial" 
 ### **Evaluating on Test Data**
 
 `python scripts/classify_commercial_content.py --test_data data/test --model_path models/best_model`
-<br>
-<br>
-<img src="https://github.com/HencAd/CV_project/blob/Ela/example_labels_pictures.png"/>
 
 ## **Installation & Setup**
 
@@ -82,9 +76,18 @@ dataset/
 `wandb login`
 
 ## **Results & Visualizations**
+<p float="left">
+  <img src="https://github.com/HencAd/CV_project/blob/Ela/W%26B%20Chart%2016.02.2025%2C%2015_46_26.png" width="400"/>
+  <img src="https://github.com/HencAd/CV_project/blob/Ela/W%26B%20Chart%2016.02.2025%2C%2015_46_39.png" width="400"/>
+</p>
+<img src="https://github.com/HencAd/CV_project/blob/Ela/W%26B%20Chart%2016.02.2025%2C%2015_47_36.png" width="400"/>
+<br>
+<img src="https://github.com/HencAd/CV_project/blob/Ela/example_labels_pictures.png"/>
 
-- Training logs and metrics are available on W&B.
-- Example classifications with model predictions.
+<p float="left">
+  <img src="https://github.com/HencAd/CV_project/blob/Ela/W%26B%20Chart%2016.02.2025%2C%2017_21_58.png" width="400"/>
+  <img src="https://github.com/HencAd/CV_project/blob/Ela/W%26B%20Chart%2016.02.2025%2C%2017_22_12.png" width="400"/>
+</p>
 
 ## **Future Work**
 

@@ -163,20 +163,62 @@ peft_config = LoraConfig(
 p_model = get_peft_model(base_model, peft_config)
 p_model.print_trainable_parameters()
 
+import datetime
+current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+logging_dir = f"./logs/run_{current_time}"
+
+
+from transformers import TrainerCallback
+class CustomCallback(TrainerCallback):
+        
+    def __init__(self, trainer) -> None:
+        super().__init__()
+        self._trainer = trainer
+                                
+    def on_epoch_end(self, args, state, control, **kwargs):
+        if control.should_evaluate:
+            control_copy = deepcopy(control)
+            self._trainer.evaluate(eval_dataset=self._trainer.train_dataset, metric_key_prefix="train")
+            return control_copy
+
+
+
+from sklearn.metrics import accuracy_score, f1_score, recall_score
+def compute_metrics(eval_pred):
+    """Oblicza i zwraca metryki dla ewaluacji."""
+    logits, labels = eval_pred
+    predictions = logits.argmax(axis=-1)
+
+    accuracy = accuracy_score(labels, predictions)
+    f1 = f1_score(labels, predictions, average="weighted")
+    recall = recall_score(labels, predictions, average="weighted")
+
+    metrics = {
+            "eval_accuracy": accuracy,
+            "eval_f1": f1,
+            "eval_recall": recall,
+        }
+
+    print("Compute Metrics Output:", metrics)  ### żeby widzieć czy ta funkcja jest w ogóle odpalana
+    return metrics
+
+
 training_args = TrainingArguments(
     output_dir="./results",
-    eval_strategy="epoch",
+    eval_strategy="steps",
     save_strategy="epoch",
+    eval_steps=500,
     per_device_train_batch_size=4,
     per_device_eval_batch_size=4,
-    num_train_epochs=1,
+    num_train_epochs=3,
     learning_rate=2e-5,
     gradient_accumulation_steps=4,
     optim="paged_adamw_8bit",
-    logging_dir="./logs",
+    logging_dir=logging_dir,
     logging_steps=10,
     weight_decay=0.001,
     report_to="tensorboard",
+    label_names=["labels"],
     max_grad_norm=0.5,
     warmup_ratio=0.03,
     lr_scheduler_type="cosine",
@@ -190,12 +232,19 @@ trainer = Trainer(
     model=p_model,
     args=training_args,
     train_dataset=train_dataset,
-    eval_dataset=val_dataset
+    eval_dataset=val_dataset,
+    compute_metrics=compute_metrics
     )
 
-
+trainer.add_callback(CustomCallback(trainer)) 
 #Gdy model wytrenowany to zakomentowac
 trainer.train()
+
+#eval_results = trainer.evaluate()
+#print(eval_results)
+#print("Ewaluacja loss:", eval_results["eval_loss"])
+
+
 
 model_path="./final_model"
 trainer.save_model(model_path)

@@ -45,7 +45,8 @@ def upload_file():
 def process_video(video_path, num_frames=16):
 
     model = init_model()
-
+    model.to(device)
+    model.to(torch.float16)
     vr = VideoReader(video_path, ctx=cpu(0))  
     total_frames = len(vr)
     indices = torch.linspace(0, total_frames - 1, num_frames).long()  # Losujemy klatki
@@ -61,7 +62,11 @@ def process_video(video_path, num_frames=16):
     # Stosowanie transformacji na wybranych klatkach
     video_tensor = torch.stack([transform(frame) for frame in frames])  # (num_frames, 3, 224, 224)
     video_tensor = video_tensor.unsqueeze(0)  # (1, num_frames, 3, 224, 224)
-    
+    video_tensor = video_tensor.to("cuda").half()
+    print(f"Video tensor shape: {video_tensor.shape}")
+    print(f"Tensor dtype: {video_tensor.dtype}")
+    print(f"Device video: {video_tensor.device}")
+    print(f"Device model: {model.device}")
     with torch.no_grad():
         logits = model(video_tensor).logits
         probs = F.softmax(logits, dim=1)
@@ -88,9 +93,9 @@ def init_model():
 
     peft_config = PeftConfig.from_pretrained(model_path) 
     final_model = PeftModel.from_pretrained(base_model,model_path, config=peft_config) 
-
+    
     return final_model.eval()
 
     
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

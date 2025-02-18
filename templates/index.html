@@ -1,115 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Analysis Upload</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <style>
-        body{
-            background: #D0D2D6;
-            margin: 0;
-            overflow: hidden;
-        }
-        section{
-            position: relative;
-            background: url('../static/img/DALL·E-2025-02-14-17.20.png') no-repeat center center fixed;
-            background-size: contain;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .upload-container {
-            /* transform: rotate(16deg); */
-            position: absolute;
-            top: 28%;
-            left: 53%;
-            transform: translate(-50%, -50%) rotate(16deg);
-            /* background: rgba(255, 255, 255, 0.2); */
-            padding: 26px;
-            border-radius: 10px;
-            text-align: center;
-            max-width: 30vw;
-        }
-        .drop-area {
-            border: 2px dashed #6c757d;
-            padding: 20px;
-            cursor: pointer;
-        }
-        .dragover {
-            background-color: rgba(0, 0, 0, 0.1);
-        }
-        #buttonArea{
-            transform: rotate(16deg);
-            /* background-color: green; */
-            position: absolute;
-            top: 25%;
-            left: 64%;
-            width: 6vw;
-            height: 6vh;
-        }
-        .status-circle {
-            position: absolute;
-            top: 61.5%;
-            left: 46.5%;
-            width: 1.5vw;
-            height: 1.5vw;
-            border-radius: 50%;
-            background-color: grey;
-            margin: 10px auto;
-            display: none;
-        }
-        #waitText{
-            position: absolute;
-            top: 55%;
-            left: 45%;
-            transform: rotate(15deg);
-            display: none;
-        }
-        .loading {
-            animation: blink 1s infinite;
-        }
-        @keyframes blink {
-            50% { opacity: 0.5; }
-        }
-        .highlight {
-            position: absolute;
-            width: 10vw;
-            height: 5px;
-            background-color: transparent;
-        }
-        .highlight.content {
-            top: 70.5%;
-            left: 32%;
-            background-color: rgb(54, 92, 54);
-        }
-        .highlight.commercial {
-            top: 77%;
-            transform: rotate(16deg);
-            background-color: rgb(54, 92, 54);
-        }
-    </style>
-</head>
-<body>
-    <section>
-        <div class="upload-container">
-            <h3>Upload Video</h3>
-            <div id="dropArea" class="drop-area">
-                <p >Drag & Drop file here or click to upload</p>
-                <input type="file" id="fileInput" hidden>
-            </div>
-        </div>
-        <div id="buttonArea" class="drop-area">
-        <input type="file" id="fileInput2" hidden>
-        </div>
-        <div id="statusCircle" class="status-circle"></div>
-        <p id="waitText">Awaiting upload...</p>
-        <div id="highlightBar" class="highlight"></div>
-    </section>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body> -->
-
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -135,7 +23,7 @@
         }
         .drop-zone, .video-container {
             position: absolute;
-            top: 10%;
+            top: 9%;
             left: 31%;
             width: 42%;
             height: 33%;
@@ -144,6 +32,7 @@
             align-items: center;
             text-align: center;
             cursor: pointer;
+	    border-radius: 26px;
         }
         .drop-zone {
             background: rgba(173, 216, 230, 0.4);
@@ -153,13 +42,14 @@
         }
         .video-container {
             background: rgba(0, 0, 0, 0.5);
-            display: none; /* Na początku niewidoczny */
+            display: none; 
         }
         video {
             width: 100%;
             height: 100%;
             object-fit: cover; 
-            display: none; /* Na początku wideo jest niewidoczne */
+	    border-radius: 12px;
+            display: none; 
         }
         .upload-btn {
             position: absolute;
@@ -177,113 +67,48 @@
         }
         .result {
             margin-top: 20px;
-            font-size: 18px;
+            font-size: inherit;;
             font-weight: bold;
             position: absolute;
-            bottom: 7%;
+            bottom: 7.5%;
             left: 31%;
             min-width: 23rem;
-            padding: 3rem;
+	    min-height: 6rem;
+            padding: 2rem;
             background: #dee2e6;
             border-radius: 33px;
+	    word-wrap: break-word; 
+	    white-space: normal;
         }
+	.clear-btn {
+	    position: absolute;
+	    left: 80%;
+	    top: 10%;
+	    width: 90px;
+	    height: 90px;
+	    border: none;
+	    background: rgba(0, 0, 0, 0.125);
+	    color: white;
+	    font-size: 20px;
+	    font-weight: bold;
+	    cursor: pointer;
+	    border-radius: 16px;
+	    display: none;
+	}
     </style>
 </head>
 <body>
     <div class="device">
-        <!-- Drop zone dla przesyłania pliku -->
+        <!-- Drop zone for file upload -->
         <div class="drop-zone" id="dropZone">Drop your video</div>
-
-        <!-- Kontener do odtwarzania wideo -->
+	<button id="clearBtn" class="clear-btn">⨉</button>
+        <!-- Video playback container -->
         <div class="video-container" id="videoContainer">
-            <video id="videoPreview" autoplay loop></video>
+            <video id="videoPreview" autoplay loop controls></video>
         </div>
         <button class="upload-btn" id="uploadBtn"> ... </button>
         <div class="result" id="result"></div>
     </div>
-    
-    <!-- <script>
-        const dropZone = document.getElementById('dropZone');
-        const videoPreview = document.getElementById('videoPreview');
-        const uploadBtn = document.getElementById('uploadBtn');
-        const resultDiv = document.getElementById('result');
-        let file;
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.style.border = '2px solid blue';
-        });
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.style.border = '2px dashed #000';
-        });
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            file = e.dataTransfer.files[0];
-            if (file.type.startsWith('video/')) {
-                const url = URL.createObjectURL(file);
-                videoPreview.src = url;
-                videoPreview.style.display = 'block';
-                dropZone.style.display = 'none';
-            }
-        });
-        uploadBtn.addEventListener('click', async () => {
-            if (!file) return alert('Najpierw załaduj plik wideo.');
-            const formData = new FormData();
-            formData.append('file', file);
-            const response = await fetch('/upload', {
-                method: 'POST',
-                body: formData
-            });
-            const data = await response.json();
-            resultDiv.innerHTML = `Result: ${data.result} (Confidence: ${data.confidence}%)`;
-        });
-    </script>
-</body>
-</html> -->
-
-<script>
-    const dropZone = document.getElementById('dropZone');
-    const videoPreview = document.getElementById('videoPreview');
-    const videoContainer = document.getElementById('videoContainer');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const resultDiv = document.getElementById('result');
-    let file;
-
-    // Obsługuje przeciąganie pliku
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.style.border = '2px solid blue';
-    });
-
-    dropZone.addEventListener('dragleave', () => {
-        dropZone.style.border = '2px dashed #000';
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        file = e.dataTransfer.files[0];
-        if (file.type.startsWith('video/')) {
-            console.log("File detected: ", file);
-            const url = URL.createObjectURL(file);
-            console.log
-            videoPreview.src = url;
-            videoPreview.style.display = 'block'; // Wideo staje się widoczne
-            videoContainer.style.display = 'block'; // Pokazanie kontenera wideo
-            dropZone.style.display = 'none'; // Ukrycie dropzone
-        }
-    });
-
-    // Obsługa przycisku upload
-    uploadBtn.addEventListener('click', async () => {
-        if (!file) return alert('Najpierw załaduj plik wideo.');
-        const formData = new FormData();
-        formData.append('file', file);
-        const response = await fetch('/upload', {
-            method: 'POST',
-            body: formData
-        });
-        const data = await response.json();
-        resultDiv.innerHTML = `Result: ${data.result} (Confidence: ${data.confidence}%)`;
-    });
-</script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

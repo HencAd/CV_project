@@ -49,17 +49,17 @@ def process_video(video_path, num_frames=16):
     model.to(torch.float16)
     vr = VideoReader(video_path, ctx=cpu(0))  
     total_frames = len(vr)
-    indices = torch.linspace(0, total_frames - 1, num_frames).long()  # Losujemy klatki
-    frames = [vr[int(i)].asnumpy() for i in indices]  # Przechodzimy przez wybrane klatki
+    indices = torch.linspace(0, total_frames - 1, num_frames).long()
+    frames = [vr[int(i)].asnumpy() for i in indices]
 
-    # Zastosowanie transformacji
+    
     transform = transforms.Compose([
         transforms.ToPILImage(),
         transforms.Resize((224, 224)),
         transforms.ToTensor()
         ])
 
-    # Stosowanie transformacji na wybranych klatkach
+    
     video_tensor = torch.stack([transform(frame) for frame in frames])  # (num_frames, 3, 224, 224)
     video_tensor = video_tensor.unsqueeze(0)  # (1, num_frames, 3, 224, 224)
     video_tensor = video_tensor.to("cuda").half()
@@ -79,15 +79,6 @@ def process_video(video_path, num_frames=16):
 def init_model():
     model_path="./final_model_test"
     model = TimesformerForVideoClassification.from_pretrained(model_path)
-    
-    #base_model.classifier = torch.nn.Linear(base_model.config.hidden_size, 2)
-    #base_model.num_labels = 2
-    #base_model.config.pretraining_tp=1
-
-    #model_path="./final_model"
-
-    #peft_config = PeftConfig.from_pretrained(model_path) 
-    #final_model = PeftModel.from_pretrained(base_model,model_path, config=peft_config) 
     
     return model.eval()
 

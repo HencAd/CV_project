@@ -3,9 +3,11 @@ const videoPreview = document.getElementById('videoPreview');
 const videoContainer = document.getElementById('videoContainer');
 const uploadBtn = document.getElementById('uploadBtn');
 const resultDiv = document.getElementById('result');
+const clearBtn = document.getElementById('clearBtn');
+
 let file;
 
-// Obsługuje przeciąganie pliku
+
 dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
     dropZone.style.border = '2px solid blue';
@@ -23,13 +25,24 @@ dropZone.addEventListener('drop', (e) => {
         const url = URL.createObjectURL(file);
         console.log
         videoPreview.src = url;
-        videoPreview.style.display = 'block'; // Wideo staje się widoczne
-        videoContainer.style.display = 'block'; // Pokazanie kontenera wideo
-        dropZone.style.display = 'none'; // Ukrycie dropzone
+        videoPreview.style.display = 'block'; 
+        videoContainer.style.display = 'block'; 
+        dropZone.style.display = 'none';
+    	clearBtn.style.display = 'block'; 
     }
 });
 
-// Obsługa przycisku upload
+
+clearBtn.addEventListener('click', () => {
+	    videoPreview.src = '';
+	    videoPreview.style.display = 'none';
+	    videoContainer.style.display = 'none';
+	    dropZone.style.display = 'flex';
+	    clearBtn.style.display = 'none'; 
+	    resultDiv.innerHTML = '';
+     });
+
+
 uploadBtn.addEventListener('click', async () => {
     if (!file) return alert('Najpierw załaduj plik wideo.');
     const formData = new FormData();

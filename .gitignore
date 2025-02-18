@@ -1,7 +1,8 @@
 /dataset
-/final_model
+/final_model_test
 /logs
 /results
+/wandb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

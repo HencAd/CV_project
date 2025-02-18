@@ -77,24 +77,19 @@ def process_video(video_path, num_frames=16):
 
 
 def init_model():
-
-    base_model = TimesformerForVideoClassification.from_pretrained(
-        "facebook/timesformer-base-finetuned-k400", 
-        device_map="auto",
-        ignore_mismatched_sizes=True,
-        torch_dtype=torch.float16
-        )
+    model_path="./final_model_test"
+    model = TimesformerForVideoClassification.from_pretrained(model_path)
     
-    base_model.classifier = torch.nn.Linear(base_model.config.hidden_size, 2)
-    base_model.num_labels = 2
-    base_model.config.pretraining_tp=1
+    #base_model.classifier = torch.nn.Linear(base_model.config.hidden_size, 2)
+    #base_model.num_labels = 2
+    #base_model.config.pretraining_tp=1
 
-    model_path="./final_model"
+    #model_path="./final_model"
 
-    peft_config = PeftConfig.from_pretrained(model_path) 
-    final_model = PeftModel.from_pretrained(base_model,model_path, config=peft_config) 
+    #peft_config = PeftConfig.from_pretrained(model_path) 
+    #final_model = PeftModel.from_pretrained(base_model,model_path, config=peft_config) 
     
-    return final_model.eval()
+    return model.eval()
 
     
 if __name__ == '__main__':

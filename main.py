@@ -1,4 +1,5 @@
 import os
+import random
 from torch.utils.data import Dataset, DataLoader
 import torchvision.io as io
 import numpy as np
@@ -14,9 +15,25 @@ from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, Pe
 from tqdm import tqdm 
 from sklearn.metrics import accuracy_score, classification_report
 
+import wandb
+
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
+wandb.login() 
+
+config = {"lr": 0.0001, "batch_size": 4}
+wandb.init(config=config) 
+
+def set_seed(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+set_seed(42)
 
 class AdDetectionDataset(Dataset):
     """
@@ -95,7 +112,8 @@ def load_video(video_path: str, num_frames: int = 16) -> torch.Tensor:
     transform = transforms.Compose([
         transforms.ToPILImage(),
         transforms.Resize((224, 224)),
-        transforms.ToTensor()
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
     #Applying transformations to the selected frames
@@ -131,39 +149,29 @@ test_loader= DataLoader(
 )
 
 
-
-# bnb_config = BitsAndBytesConfig(
-#      load_in_4bit=True,
-#      bnb_4bit_quant_type="nf4",
-#      bnb_4bit_compute_dtype=torch.bfloat16  
-# )
-
 # Load pre-trained TimeSformer model
 model = TimesformerForVideoClassification.from_pretrained(
         "facebook/timesformer-base-finetuned-k400", 
-        device_map="auto",
         ignore_mismatched_sizes=True,
-        torch_dtype=torch.float16
+        torch_dtype=torch.float16,
+        num_labels=2
         )
-# Adjust model for binary classification
-model.classifier = torch.nn.Linear(model.config.hidden_size, 2)
-model.num_labels = 2
 
 # print(model)
 
 # Prepare model for LoRA fine-tuning
-model.config.pretraining_tp=1
 base_model = prepare_model_for_kbit_training(model)
+base_model.to(device)
 
-peft_config = LoraConfig(
+lora_config = LoraConfig(
         lora_alpha=32,
-        lora_dropout=0.05,
+        lora_dropout=0.1,
         r=16,
         bias="lora_only",
         target_modules="all-linear"
         )
 
-p_model = get_peft_model(base_model, peft_config)
+p_model = get_peft_model(base_model, lora_config)
 p_model.print_trainable_parameters()
 
 
@@ -172,32 +180,35 @@ import datetime
 current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 logging_dir = f"./logs/run_{current_time}"
 
-#Printing evaluation metrics during training in the terminal
-from transformers import TrainerCallback
-class CustomCallback(TrainerCallback):
-        
-    def __init__(self, trainer) -> None:
-        super().__init__()
-        self._trainer = trainer
-                                
-    def on_epoch_end(self, args, state, control, **kwargs):
-        if control.should_evaluate:
-            control_copy = deepcopy(control)
-            self._trainer.evaluate(eval_dataset=self._trainer.train_dataset, metric_key_prefix="train")
-            return control_copy
-
 
 #Saving additional plots
 from sklearn.metrics import accuracy_score, f1_score, recall_score
 def compute_metrics(eval_pred):
-    """Oblicza i zwraca metryki dla ewaluacji."""
+    """
+    Computes and returns evaluation metrics based on model predictions.
+
+    Args:
+        eval_pred (tuple): A tuple containing two arrays:
+            - logits (ndarray): Logits predicted by the model with shape (n_samples, n_classes).
+            - labels (ndarray): True labels with shape (n_samples,).
+
+    Returns:
+        dict: A dictionary containing the computed metrics:
+            - "eval_accuracy" (float): Model accuracy.
+            - "eval_f1" (float): Weighted F1-score.
+            - "eval_recall" (float): Weighted recall.
+
+    """
     logits, labels = eval_pred
     predictions = logits.argmax(axis=-1)
 
     accuracy = accuracy_score(labels, predictions)
     f1 = f1_score(labels, predictions, average="weighted")
     recall = recall_score(labels, predictions, average="weighted")
-
+    
+    
+    wandb.log({"f1": f1, "recall": recall, "accuracy": accuracy})
+    
     metrics = {
             "eval_accuracy": accuracy,
             "eval_f1": f1,
@@ -206,30 +217,34 @@ def compute_metrics(eval_pred):
     
     return metrics
 
+wandb.watch(model, log="all", log_freq=100)
 
 training_args = TrainingArguments(
     output_dir="./results", # Directory where training results and model checkpoints will be saved
     eval_strategy="steps", # Model evaluation is performed at the end of eval_steps
-    save_strategy="epoch", # The model is saved after each epoch
+    save_strategy="steps", # The model is saved after each epoch
     eval_steps=500, # How often the model should be evaluated during training
     per_device_train_batch_size=4, # Batch size per device (GPU/CPU) during training
     per_device_eval_batch_size=4, # Batch size per device (GPU/CPU) during evaluation
     num_train_epochs=3, # Number of training epochs
-    learning_rate=2e-5, # Initial learning rate for training
+    learning_rate=1e-4, # Initial learning rate for training
     gradient_accumulation_steps=4, # Number of steps before updating model weights (useful for large models)
     optim="paged_adamw_8bit", # AdamW optimizer in 8-bit mode for memory efficiency
     logging_dir=logging_dir, # Path to the directory where TensorBoard logs will be stored
     logging_steps=10, # Logging frequency in training steps
-    weight_decay=0.001, # L2 regularization coefficient (prevents overfitting)
-    report_to="tensorboard",  # Specifies where to report training metrics (TensorBoard)
+    weight_decay=0.01, # L2 regularization coefficient (prevents overfitting)
+    report_to="wandb",  # Specifies where to report training metrics (TensorBoard)
     label_names=["labels"],  # Specifies the name of the label field in the dataset - use to compute matrix
     max_grad_norm=0.5,  # Maximum gradient norm for gradient clipping (prevents gradient explosion)
     warmup_ratio=0.03,  # Fraction of total steps allocated for learning rate warm-up
     lr_scheduler_type="cosine", # Scheduler that adjusts learning rate using a cosine function
     save_safetensors=True, # Saves the model in `safetensors` format for increased security
-    save_total_limit=2, # Maximum number of checkpoints stored on disk (older ones are overwritten)
+    save_total_limit=3, # Maximum number of checkpoints stored on disk (older ones are overwritten)
     fp16=True, # Enables 16-bit floating-point precision for memory efficiency and faster computation
-    push_to_hub=False # Determines whether the model should be automatically uploaded to Hugging Face Hub
+    push_to_hub=False, # Determines whether the model should be automatically uploaded to Hugging Face Hub
+    metric_for_best_model="eval_f1",  # Metric used to determine the best model
+    greater_is_better=True,  # Indicates whether a higher metric value is better (True for F1-score)
+    load_best_model_at_end=True,  # Loads the best model checkpoint at the end of training
     )
 
 trainer = Trainer(
@@ -240,30 +255,50 @@ trainer = Trainer(
     compute_metrics=compute_metrics
     )
 
-trainer.add_callback(CustomCallback(trainer)) 
 
 #Train model
 trainer.train()
+trainer.evaluate()
+wandb.finish()
+
+p_model.config.id2label = {
+    0: "content",
+    1: "commercial"
+    }
+
+p_model.config.label2id = {v: k for k, v in p_model.config.id2label.items()}
+
+full_model = p_model.merge_and_unload()
+
+model_path = "./final_model"
+full_model.save_pretrained(model_path)
+
+
+final_model = TimesformerForVideoClassification.from_pretrained(model_path)
+
+final_model.eval()
 
 
 # Save final model
-model_path="./final_model"
-trainer.save_model(model_path)
+#model_path="./final_model"
+#trainer.save_model(model_path)
 
 ######
 
 # Load fine-tuned model for evaluation
-peft_config = PeftConfig.from_pretrained(model_path) 
-final_model = PeftModel.from_pretrained(model,model_path, config=peft_config) 
-final_model.eval()
+#peft_config = PeftConfig.from_pretrained(model_path) 
+#final_model = PeftModel.from_pretrained(model,model_path, config=peft_config) 
+#final_model.eval()
 
 # Evaluate on test set
 predictions = []
 true_labels = []
 
 for batch in tqdm(test_loader, desc="Classification"):
-    inputs = batch["pixel_values"].to(device)
-    labels = batch["labels"].to(device)
+    inputs = batch["pixel_values"].to(device) 
+    labels = batch["labels"].squeeze().to(device)
+    
+    print(f"Inputs shape: {inputs.shape}, Labels shape: {labels.shape}")
 
     with torch.no_grad():
         outputs = final_model(**{"pixel_values": inputs})
@@ -271,7 +306,7 @@ for batch in tqdm(test_loader, desc="Classification"):
 
         predictions.extend(predicted_labels.cpu().numpy())
         true_labels.extend(labels.cpu().numpy())
-
+        print(final_model.config)
 accuracy = accuracy_score(true_labels, predictions)
 print(f"Accuracy: {accuracy}")
 

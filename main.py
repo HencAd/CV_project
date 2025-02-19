@@ -214,7 +214,8 @@ def compute_metrics(eval_pred):
     
     return metrics
 
-wandb.watch(model, log="all", log_freq=100)
+wandb.watch(p_model, log="all", log_freq=100)
+
 
 training_args = TrainingArguments(
     output_dir="./results", # Directory where training results and model checkpoints will be saved

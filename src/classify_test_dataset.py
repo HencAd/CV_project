@@ -17,7 +17,7 @@ from decord import VideoReader, cpu
 
 
 """ 
-The script that classifies test dataset into 2 classes: "commercial" or "content" using the model trained in main.py
+The script that classifies test dataset into 2 classes: "commercial" or "content" using the model trained by us https://huggingface.co/cvproject/final_model
 
 It calculates accuracy, precision, recall, f1-score and prints classification_report.
 It also collects every 50th video's picture + labels (true and predicted) and calculated probabilities and prints it out to visualize the result.
@@ -25,25 +25,23 @@ It also collects every 50th video's picture + labels (true and predicted) and ca
 It can log to wandb if you pass wandb_project and wandb_run_name.
 
 Example of use:
-python classify_test_dataset.py --dataset_dir=<dataset_dir> --model_dir=<model_dir>
+python classify_test_dataset.py --dataset_dir=<dataset_dir>
 """
 
 wandb.login()  # Authenticate with your W&B account
 
 parser1 = argparse.ArgumentParser(description="Processing named arguments.")
 parser1.add_argument("--dataset_dir",   type=str,   required=True, help="Path to the dataset directory")
-parser1.add_argument("--model_dir",     type=str,   required=True, help="Path to the directory where there is the model we wanto to use")
 parser1.add_argument("--wandb_project", type=str,                  help="if you want to log to W&B please provide the project name")
 parser1.add_argument("--wandb_run_name",type=str,                  help="if you want to log to W&B please provide the run name")
 
 args1 = parser1.parse_args()
 
 dataset_dir = args1.dataset_dir
-model_dir = args1.model_dir
 wandb_project = args1.wandb_project
 wandb_run_name = args1.wandb_run_name
 
-print(f"Used parameters: dataset_dir: {dataset_dir}, models_dir: {model_dir}.")
+print(f"Used parameters: dataset_dir: {dataset_dir}.")
 
 
 class AdDetectionDataset(Dataset):
@@ -153,7 +151,7 @@ if (wandb_project and wandb_run_name):
 # Create dataset
 test_dataset =  AdDetectionDataset(root=dataset_dir, split="test")
 
-final_model = TimesformerForVideoClassification.from_pretrained(model_dir)
+final_model = TimesformerForVideoClassification.from_pretrained('cvproject/final_model')
 
 # Move model to GPU if available
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

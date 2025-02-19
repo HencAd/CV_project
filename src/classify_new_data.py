@@ -7,22 +7,20 @@ import cv2
 from collections import defaultdict
 
 """ 
-The script classifies new video data into 2 classes: "commercial" or "content" using the model trained in main.py
+The script classifies new video data into 2 classes: "commercial" or "content" using the model trained by us https://huggingface.co/cvproject/final_model
 
 Example of use:
-python classify_new_data.py --data_dir=<data_dir> --model_dir=<model_dir>
+python classify_new_data.py --data_dir=<data_dir>
 """
 
 parser = argparse.ArgumentParser(description="Processing named arguments.")
 parser.add_argument("--data_dir",      type=str,   required=True, help="Path to the directory where the videos are placed")
-parser.add_argument("--model_dir",     type=str,   required=True, help="Path to the directory where there is the model we wanto to use")
 
 args = parser.parse_args()
 
 data_dir = args.data_dir
-model_dir = args.model_dir
 
-print(f"Used parameters: data_dir: {data_dir}, models_dir: {model_dir}.")
+print(f"Used parameters: data_dir: {data_dir}.")
 
 def extract_frames(video_path, num_frames=8, resize=(224, 224)):
     """Extract evenly spaced frames from the video file."""
@@ -52,7 +50,7 @@ def extract_frames(video_path, num_frames=8, resize=(224, 224)):
 # Load the feature extractor
 processor = AutoImageProcessor.from_pretrained("facebook/timesformer-base-finetuned-k400")
 
-final_model = TimesformerForVideoClassification.from_pretrained(model_dir)
+final_model = TimesformerForVideoClassification.from_pretrained('cvproject/final_model')
 
 # Move model to GPU if available
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

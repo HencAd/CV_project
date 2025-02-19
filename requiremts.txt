@@ -10,6 +10,7 @@ tqdm
 scikit-learn
 Pillow
 wand
+bitsandbytes
 
 flask
 

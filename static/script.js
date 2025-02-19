@@ -44,9 +44,13 @@ clearBtn.addEventListener('click', () => {
 
 
 uploadBtn.addEventListener('click', async () => {
-    if (!file) return alert('Najpierw załaduj plik wideo.');
+    if (!file) return alert('You must upload a video first.');
+    
+    resultDiv.innerHTML = '<div class="loading-spinner"></div>';
+    
     const formData = new FormData();
     formData.append('file', file);
+    
     const response = await fetch('/upload', {
         method: 'POST',
         body: formData

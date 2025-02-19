@@ -16,12 +16,12 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Strona główna
+#Home page
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# Endpoint do przesyłania plików
+# Endpoint for upload files
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -31,7 +31,7 @@ def upload_file():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
-    # Zapisz plik w wybranym folderze
+    # save file in directory
     video_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(video_path)
 
@@ -68,11 +68,16 @@ def process_video(video_path, num_frames=16):
     print(f"Device video: {video_tensor.device}")
     print(f"Device model: {model.device}")
     with torch.no_grad():
-        logits = model(video_tensor).logits
-        probs = F.softmax(logits, dim=1)
-        confidence, predicted_class = torch.max(probs, dim=1)
+        outputs = model(**{"pixel_values": video_tensor})
+        logits = outputs.logits
+        probs = torch.softmax(logits, dim=1)  # Softmax na wynikach
+        confidence, predicted_class = torch.max(probs, dim=1)  # Pobranie wartości i indeksu
 
-    label = "content" if predicted_class.item() == 0 else "commercial"
+        print(f"Predicted probabilities: {probs}")
+        print(f"Predicted class: {predicted_class}, Confidence: {confidence.item() * 100:.2f}%")
+    
+        label =  model.config.id2label[predicted_class.item()]
+    
     return label, confidence.item()
 
 

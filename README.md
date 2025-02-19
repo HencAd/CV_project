@@ -131,19 +131,12 @@ To run the model and interact with the demo, follow the instructions below.
 
 ## **Results & Visualizations**
 <p float="left">
-  <img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2016.02.2025%2C%2015_46_26.png" width="400"/>
-  <img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2016.02.2025%2C%2015_46_39.png" width="400"/>
+  <img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2019.02.2025%2C%2014_11_43.png" width="400"/>
+  <img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2019.02.2025%2C%2014_11_52.png" width="400"/>
 </p>
-<img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2016.02.2025%2C%2015_47_36.png" width="400"/>
+<img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2019.02.2025%2C%2014_12_05.png" width="400"/>
 <br>
-<img src="https://github.com/HencAd/CV_project/blob/Ela/images/example_labels_pictures.png"/>
-
-<p float="left">
-  <img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2016.02.2025%2C%2017_21_58.png" width="400"/>
-  <img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2016.02.2025%2C%2017_22_12.png" width="400"/>
-</p>
+<img src="https://github.com/HencAd/CV_project/blob/Ela/images/examples1.png"/>
+<img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2019.02.2025%2C%2014_11_06.png" width="400"/>
 
 
-## **License**
-
-MIT License

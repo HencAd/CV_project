@@ -88,6 +88,15 @@ The fine-tuning progress was tracked using metrics such as the loss and gradient
 <br><br>
 The training, evaluation and test results indicate that the model is highly effective in distinguishing between advertisements and content, which makes it suitable for deployment in real-world scenarios.
 
+#### Limitations & Challenges:
+While the model performs well overall, there are specific cases where it struggles:  
+
+1. **Social Awareness Commercials**: Some public service announcements (PSAs) and socially-driven ads are difficult to classify because they lack typical advertising cues such as logos, branding, or direct promotional messages.  
+2. **Film-Like Ads**: Certain commercials resemble movie scenes or short films, making them visually and narratively similar to regular content. These ads do not include overlay text, product placements, or frequent logo appearances, which are often strong indicators of commercials.  
+3. **Silent or Minimal-Text Advertisements**: Since our model primarily focuses on visual patterns, commercials that rely on subtle storytelling rather than explicit branding may be misclassified as content.  
+
+These challenges indicate that the model primarily learns from visual patterns, but struggles with abstract or artistic commercial formats.  
+
 ### Results & Visualizations
 <p float="left">
   <img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2019.02.2025%2C%2014_11_43.png" width="400"/>
@@ -154,5 +163,12 @@ To run the model and interact with the demo, follow the instructions below.
    - Add a recommendation system that analyzes the video content and suggests similar movies or ads that might interest the user.
    - Use data from the video analysis to generate real-time recommendations, increasing user engagement and interactivity.
 
+4. **Improving Detection of Film-Like Commercials**  
+   - Introduce **temporal attention mechanisms** to better analyze how ads transition over time.  
+   - Incorporate **scene detection algorithms** to identify cuts and pacing typical of commercials.  
+   - Experiment with **contrastive learning** to distinguish film-like ads from actual movie scenes.
+   - Expand the dataset by **adding more mislabeled or ambiguous commercials**, training the model to recognize edge cases better.  
+
+   
 
 

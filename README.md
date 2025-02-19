@@ -73,6 +73,16 @@ The fine-tuning progress was tracked using metrics such as the loss and gradient
 <br><br>
 The training, evaluation and test results indicate that the model is highly effective in distinguishing between advertisements and content, which makes it suitable for deployment in real-world scenarios.
 
+### Results & Visualizations
+<p float="left">
+  <img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2019.02.2025%2C%2014_11_43.png" width="400"/>
+  <img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2019.02.2025%2C%2014_11_52.png" width="400"/>
+</p>
+<img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2019.02.2025%2C%2014_12_05.png" width="400"/>
+<br>
+<img src="https://github.com/HencAd/CV_project/blob/Ela/images/examples1.png"/>
+<img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2019.02.2025%2C%2014_11_06.png" width="400"/>
+
 ## 4. Usage
 
 To run the model and interact with the demo, follow the instructions below.
@@ -129,14 +139,5 @@ To run the model and interact with the demo, follow the instructions below.
    - Add a recommendation system that analyzes the video content and suggests similar movies or ads that might interest the user.
    - Use data from the video analysis to generate real-time recommendations, increasing user engagement and interactivity.
 
-## **Results & Visualizations**
-<p float="left">
-  <img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2019.02.2025%2C%2014_11_43.png" width="400"/>
-  <img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2019.02.2025%2C%2014_11_52.png" width="400"/>
-</p>
-<img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2019.02.2025%2C%2014_12_05.png" width="400"/>
-<br>
-<img src="https://github.com/HencAd/CV_project/blob/Ela/images/examples1.png"/>
-<img src="https://github.com/HencAd/CV_project/blob/Ela/images/W%26B%20Chart%2019.02.2025%2C%2014_11_06.png" width="400"/>
 
 

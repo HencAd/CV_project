@@ -7,7 +7,7 @@ import torch
 from copy import deepcopy
 from PIL import Image
 from torchvision import transforms
-from transformers import TimesformerForVideoClassification, BitsAndBytesConfig, Trainer, TrainingArguments
+from transformers import TimesformerForVideoClassification, Trainer, TrainingArguments
 from decord import VideoReader, cpu
 
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, PeftModel, PeftConfig
@@ -66,7 +66,7 @@ class AdDetectionDataset(Dataset):
         for label_name, label in self.label_map.items():
             label_dir = os.path.join(self.split_dir, label_name)
             if not os.path.exists(label_dir):
-                continue  # Jeśli folder nie istnieje, pomijamy
+                continue  
             
             for file in os.listdir(label_dir):
                 video_path = os.path.join(label_dir, file)
@@ -91,7 +91,6 @@ class AdDetectionDataset(Dataset):
         label = self.labels[idx]
         video_tensor = load_video(video_path, self.num_frames)
         
-        #print(video_tensor.shape)
         return {"pixel_values": video_tensor, "labels": torch.tensor(label, dtype=torch.long)}
 
 
@@ -156,8 +155,6 @@ model = TimesformerForVideoClassification.from_pretrained(
         torch_dtype=torch.float16,
         num_labels=2
         )
-
-# print(model)
 
 # Prepare model for LoRA fine-tuning
 base_model = prepare_model_for_kbit_training(model)

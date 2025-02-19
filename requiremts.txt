@@ -9,6 +9,7 @@ peft
 tqdm
 scikit-learn
 Pillow
+wand
 
 flask
 

@@ -1,4 +1,19 @@
 # Video Commercial/Content Detection with Fine-Tuned Model
+
+## Table of Contents  
+- [Project Overview](#1-project-overview)  
+- [Dataset](#2-dataset)  
+  - [Dataset Preparation](#dataset-preparation)  
+  - [Dataset Splitting](#dataset-splitting)  
+  - [Data Loader](#data-loader)  
+- [Fine-Tuning](#3-fine-tuning)  
+  - [Training Details](#training-details)  
+  - [Model Evaluation](#model-evaluation)  
+  - [Model Testing](#model-testing)  
+  - [Results & Visualizations](#results--visualizations)  
+- [Usage](#4-usage)  
+- [Further Development](#5-further-development)
+  
 ## 1. Project Overview
 
 This project aims to fine-tune a pre-trained model for detecting whether a video segment is an advertisement ("commercial") or regular content ("content"). The model was trained using a custom dataset consisting of short video clips (10 seconds each), and the fine-tuned model can be used for detecting advertisements in new video inputs.

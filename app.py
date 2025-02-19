@@ -77,8 +77,8 @@ def process_video(video_path, num_frames=16):
 
 
 def init_model():
-    model_path="./final_model"
-    model = TimesformerForVideoClassification.from_pretrained(model_path)
+    #model_path="./final_model"
+    model = TimesformerForVideoClassification.from_pretrained('cvproject/final_model')
     
     return model.eval()
 

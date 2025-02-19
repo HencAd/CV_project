@@ -49,6 +49,7 @@ The videos from the dataset are loaded using the `decor` library, which samples 
 - **Optimization:** AdamW with weight decay
 - **Evaluation Metrics:** F1-score, accuracy
   <br><br><br>
+
 The model was fine-tuned for 3 epochs with the following parameters:
 
 - **Trainable Parameters**: 3,680,290
@@ -146,6 +147,7 @@ To run the model and interact with the demo, follow the instructions below.
 
     6. Classify not labeled data from outside of dataset
     python src/classify_new_data.py --data_dir=<data_dir>
+
 ```
 
 ## 5. Further Development
@@ -169,6 +171,4 @@ To run the model and interact with the demo, follow the instructions below.
    - Experiment with **contrastive learning** to distinguish film-like ads from actual movie scenes.
    - Expand the dataset by **adding more mislabeled or ambiguous commercials**, training the model to recognize edge cases better.  
 
-   
-
-
+  

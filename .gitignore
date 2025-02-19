@@ -1,5 +1,12 @@
-
-
+/dataset
+# 2 epoch
+/final_model_test
+# 3 epoch
+/final_model 
+/logs
+/results
+/wandb
+/uploads
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

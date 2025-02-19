@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Analysis Upload</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background: linear-gradient(to right, #CDEBF7, #A6D4F2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        .device {
+            position: relative;
+            width: 845px;
+            height: 890px;
+            background: url('{{ url_for("static", filename="img/DALL·E-2025-02-15-17.13.png") }}')  no-repeat center center fixed;
+        }
+        .drop-zone, .video-container {
+            position: absolute;
+            top: 9%;
+            left: 31%;
+            width: 42%;
+            height: 33%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+	    border-radius: 26px;
+        }
+        .drop-zone {
+            background: rgba(173, 216, 230, 0.4);
+            border: 2px dashed #000;
+            color: black;
+            font-weight: bold;
+        }
+        .video-container {
+            background: rgba(0, 0, 0, 0.5);
+            display: none; 
+        }
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+	    border-radius: 12px;
+            display: none; 
+        }
+        .upload-btn {
+            position: absolute;
+            bottom: 23%;
+            left: 52%;
+            transform: translateX(-50%);
+            background: transparent;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            min-width: 40%;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: inherit;;
+            font-weight: bold;
+            position: absolute;
+            bottom: 7.5%;
+            left: 31%;
+            min-width: 23rem;
+	    min-height: 6rem;
+            padding: 2rem;
+            background: #dee2e6;
+            border-radius: 33px;
+	    word-wrap: break-word; 
+	    white-space: normal;
+        }
+	.clear-btn {
+	    position: absolute;
+	    left: 80%;
+	    top: 10%;
+	    width: 90px;
+	    height: 90px;
+	    border: none;
+	    background: rgba(0, 0, 0, 0.125);
+	    color: white;
+	    font-size: 20px;
+	    font-weight: bold;
+	    cursor: pointer;
+	    border-radius: 16px;
+	    display: none;
+	}
+	.loading-spinner {
+   	    width: 30px;
+    	    height: 30px;
+    	    border: 5px solid rgba(0, 0, 0, 0.1);
+    	    border-top-color: #007bff;
+    	    border-radius: 50%;
+    	    animation: spin 1s linear infinite;
+    	    margin: auto;
+	}
+
+	@keyframes spin {
+    	    to {
+        	transform: rotate(360deg);
+    	    }
+	}
+    </style>
+</head>
+<body>
+    <div class="device">
+        <!-- Drop zone for file upload -->
+        <div class="drop-zone" id="dropZone">Drop your video</div>
+	<button id="clearBtn" class="clear-btn">⨉</button>
+        <!-- Video playback container -->
+        <div class="video-container" id="videoContainer">
+            <video id="videoPreview" autoplay loop controls></video>
+        </div>
+        <button class="upload-btn" id="uploadBtn"> ... </button>
+        <div class="result" id="result"></div>
+    </div>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

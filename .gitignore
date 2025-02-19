@@ -1,5 +1,8 @@
 /dataset
+# 2 epoch
 /final_model_test
+# 3 epoch
+/final_model 
 /logs
 /results
 /wandb

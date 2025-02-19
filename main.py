@@ -277,28 +277,15 @@ full_model.save_pretrained(model_path)
 final_model = TimesformerForVideoClassification.from_pretrained(model_path)
 
 final_model.eval()
+final_model.to(device)
 
-
-# Save final model
-#model_path="./final_model"
-#trainer.save_model(model_path)
-
-######
-
-# Load fine-tuned model for evaluation
-#peft_config = PeftConfig.from_pretrained(model_path) 
-#final_model = PeftModel.from_pretrained(model,model_path, config=peft_config) 
-#final_model.eval()
-
-# Evaluate on test set
+#Classification on test set
 predictions = []
 true_labels = []
 
 for batch in tqdm(test_loader, desc="Classification"):
     inputs = batch["pixel_values"].to(device) 
-    labels = batch["labels"].squeeze().to(device)
-    
-    print(f"Inputs shape: {inputs.shape}, Labels shape: {labels.shape}")
+    labels = batch["labels"].squeeze().to(device)  
 
     with torch.no_grad():
         outputs = final_model(**{"pixel_values": inputs})
@@ -306,7 +293,7 @@ for batch in tqdm(test_loader, desc="Classification"):
 
         predictions.extend(predicted_labels.cpu().numpy())
         true_labels.extend(labels.cpu().numpy())
-        print(final_model.config)
+        
 accuracy = accuracy_score(true_labels, predictions)
 print(f"Accuracy: {accuracy}")
 

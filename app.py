@@ -3,7 +3,7 @@ import os
 import torch
 from torchvision import transforms
 from peft import PeftModel, PeftConfig
-from transformers import TimesformerForVideoClassification
+from transformers import TimesformerForVideoClassification, AutoImageProcessor
 from decord import VideoReader, cpu
 import torch.nn.functional as F
 
@@ -47,28 +47,33 @@ def process_video(video_path, num_frames=16):
     model = init_model()
     model.to(device)
     model.to(torch.float16)
+    processor = AutoImageProcessor.from_pretrained("facebook/timesformer-base-finetuned-k400")
     vr = VideoReader(video_path, ctx=cpu(0))  
     total_frames = len(vr)
     indices = torch.linspace(0, total_frames - 1, num_frames).long()
     frames = [vr[int(i)].asnumpy() for i in indices]
-
+    
+    #inputs = processor(frames, return_tensors="pt").to(device)  # Preprocess
+    #pixel_values = inputs["pixel_values"].to(device).half()
     
     transform = transforms.Compose([
         transforms.ToPILImage(),
         transforms.Resize((224, 224)),
-        transforms.ToTensor()
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
     
     video_tensor = torch.stack([transform(frame) for frame in frames])  # (num_frames, 3, 224, 224)
     video_tensor = video_tensor.unsqueeze(0)  # (1, num_frames, 3, 224, 224)
     video_tensor = video_tensor.to("cuda").half()
-    print(f"Video tensor shape: {video_tensor.shape}")
-    print(f"Tensor dtype: {video_tensor.dtype}")
-    print(f"Device video: {video_tensor.device}")
-    print(f"Device model: {model.device}")
+    #print(f"Video tensor shape: {video_tensor.shape}")
+    #print(f"Tensor dtype: {video_tensor.dtype}")
+    #print(f"Device video: {video_tensor.device}")
+    #print(f"Device model: {model.device}")
     with torch.no_grad():
         outputs = model(**{"pixel_values": video_tensor})
+        #outputs = model(**{"pixel_values": pixel_values})
         logits = outputs.logits
         probs = torch.softmax(logits, dim=1)  # Softmax na wynikach
         confidence, predicted_class = torch.max(probs, dim=1)  # Pobranie wartości i indeksu

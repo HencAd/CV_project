@@ -190,6 +190,8 @@ for i in range(0,len(test_dataset)):
         predictions.append(predicted_label)
         true_labels.append(sample["labels"])
         true_label = final_model.config.id2label.get(sample["labels"], "Unknown")
+        if true_label == 'Unknown':
+            true_label = categories[sample["labels"]]
         probabilities = torch.softmax(outputs.logits, dim=1).cpu().numpy()[0]
         if i % 50 == 0:
             vis_probabs.append(probabilities)
@@ -242,7 +244,7 @@ if use_wandb:
         formatted_probs = "[" + ", ".join([f"{prob:.3f}" for prob in vis_probabs[i]]) + "]"
         title_wandb = f"Predicted:{vis_predicted_classes[i]}, True:{vis_true_labels[i]}\n Probabs: {formatted_probs}\n {os.path.basename(vis_video_paths[i])}"
         img = Image.fromarray(frame.astype('uint8')).convert('RGB')
-        wimage = wandb.Image(img, caption=title_wandb)
+        wimage = wandb.Image(frame, caption=title_wandb)
         wbdata.append(wimage)
 
     if len(wbdata) > 0:

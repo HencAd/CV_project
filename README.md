@@ -36,7 +36,7 @@ Additionally, a simple demo is provided, allowing users to upload videos and rec
 - Test: 15% (1595 content clips + 408 commercial clips)
 
 We used split_dataset.py script to randomly split data into train, validation and test splits.<br>
-`python split_dataset.py --input_dir=<input_dir> --output_dir=<output_dir> --train_ratio=0.7 --val_ratio=0.15 --test_ratio=0.15`
+`python src/split_dataset.py --input_dir=<input_dir> --output_dir=<output_dir> --train_ratio=0.7 --val_ratio=0.15 --test_ratio=0.15`
 
 ### Data Loader
 The videos from the dataset are loaded using the `decor` library, which samples 16 frames from each video and resizes them to 224x224 pixels for input into the model. The process ensures that each video is uniformly processed, maintaining the necessary consistency across the dataset.
@@ -49,6 +49,7 @@ The videos from the dataset are loaded using the `decor` library, which samples 
 - **Optimization:** AdamW with weight decay
 - **Evaluation Metrics:** F1-score, accuracy
   <br><br><br>
+
 The model was fine-tuned for 3 epochs with the following parameters:
 
 - **Trainable Parameters**: 3,680,290
@@ -142,10 +143,11 @@ To run the model and interact with the demo, follow the instructions below.
     5. Running classification on test dataset, separately from main.py script,
        with visualization in matplotlib and logging example media to W&B
 
-    python classify_test_dataset.py  --dataset_dir=<dataset_dir> --model_dir=<model_dir> --wandb_project=<WB_PROJECT> --wandb_run_name=<WB_RUN>
+    python src/classify_test_dataset.py  --dataset_dir=<dataset_dir> --wandb_project=<WB_PROJECT> --wandb_run_name=<WB_RUN>
 
     6. Classify not labeled data from outside of dataset
-    python classify_new_data.py --data_dir=<data_dir> --model_dir=<model_dir>
+    python src/classify_new_data.py --data_dir=<data_dir>
+
 ```
 
 ## 5. Further Development
@@ -169,6 +171,4 @@ To run the model and interact with the demo, follow the instructions below.
    - Experiment with **contrastive learning** to distinguish film-like ads from actual movie scenes.
    - Expand the dataset by **adding more mislabeled or ambiguous commercials**, training the model to recognize edge cases better.  
 
-   
-
-
+  

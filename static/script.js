@@ -58,8 +58,12 @@ uploadBtn.addEventListener('click', async () => {
         body: formData
     });
     const data = await response.json();
-	containerDiv.innerHTML = '<img src="/static/attention_heatmap.gif" alt="Heatmap">';
-
+	
+	const oldGif = containerDiv.querySelector('img');
+	if (oldGif) {
+		oldGif.remove();
+	}
 		  
-    resultDiv.innerHTML = `Result: ${data.result} (Confidence: ${data.confidence}%)`;
+    	resultDiv.innerHTML = `Result: ${data.result} (Confidence: ${data.confidence}%)`;
+	containerDiv.innerHTML = '<img src="/static/attention_heatmap.gif" alt="Heatmap">';
 });

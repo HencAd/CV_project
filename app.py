@@ -162,7 +162,7 @@ def combine_divided_attention(attn_t, attn_s):
     return attn_ts
 
 
-def process_video_2(video_path, num_frames=16):
+def process_video(video_path, num_frames=16):
     """
     Processes a video to generate attention maps based on temporal and spatial attention,
     creates a heatmap by overlaying the attention maps on the frames, and generates a GIF of the heatmap.
@@ -291,7 +291,7 @@ def process_video_2(video_path, num_frames=16):
         heatmap_frames.append(np.array(attn_img))
 
     # Save GIF with attention heatmap frames
-    imageio.mimsave("static/attention_heatmap.gif", heatmap_frames, duration=1.5, loop=0)
+    imageio.mimsave("static/attention_heatmap.gif", heatmap_frames, duration=8, loop=0)
 
     return label, confidence.item()
 

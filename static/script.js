@@ -3,6 +3,7 @@ const videoPreview = document.getElementById('videoPreview');
 const videoContainer = document.getElementById('videoContainer');
 const uploadBtn = document.getElementById('uploadBtn');
 const resultDiv = document.getElementById('result');
+const containerDiv = document.getElementById('containerDiv');
 const clearBtn = document.getElementById('clearBtn');
 
 let file;
@@ -38,8 +39,9 @@ clearBtn.addEventListener('click', () => {
 	    videoPreview.style.display = 'none';
 	    videoContainer.style.display = 'none';
 	    dropZone.style.display = 'flex';
-	    clearBtn.style.display = 'none'; 
+	    clearBtn.style.display = 'none';
 	    resultDiv.innerHTML = '';
+	    containerDiv.innerHTML = '';
      });
 
 
@@ -56,5 +58,8 @@ uploadBtn.addEventListener('click', async () => {
         body: formData
     });
     const data = await response.json();
+	containerDiv.innerHTML = '<img src="/static/attention_heatmap.gif" alt="Heatmap">';
+
+		  
     resultDiv.innerHTML = `Result: ${data.result} (Confidence: ${data.confidence}%)`;
 });

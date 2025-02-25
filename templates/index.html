@@ -110,10 +110,19 @@
         	transform: rotate(360deg);
     	    }
 	}
+	img{
+	position: absolute;
+	left: -60%;
+	bottom: 0%;
+	width: 40%;
+	height: 40%;
+	object-fit: cover;
+	}
     </style>
 </head>
 <body>
     <div class="device">
+	<div id="containerDiv"></div>
         <!-- Drop zone for file upload -->
         <div class="drop-zone" id="dropZone">Drop your video</div>
 	<button id="clearBtn" class="clear-btn">⨉</button>

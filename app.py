@@ -42,120 +42,61 @@ def upload_file():
     video_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(video_path)
 
-    result, confidence  = process_video_2(video_path)
+    result, confidence  = process_video(video_path)
     confidence_percentage = round(confidence * 100, 1) 
 
     os.remove(video_path)
 
     return jsonify({'result': result, 'confidence': confidence_percentage})
 
-def process_video(video_path, num_frames=16):
 
-    model = init_model()
-    model.to(device)
-    model.to(torch.float16)
-
-    processor = AutoImageProcessor.from_pretrained("facebook/timesformer-base-finetuned-k400",use_fast=True)
+def init_model():
+    # Load the pre-trained model for video classification with attention outputs
+    model = TimesformerForVideoClassification.from_pretrained('cvproject/final_model', output_attentions=True)
     
-    vr = VideoReader(video_path, ctx=cpu(0))  
-    total_frames = len(vr)
-    indices = torch.linspace(0, total_frames - 1, num_frames).long()
-    frames = [vr[int(i)].asnumpy() for i in indices]
-    
-    #inputs = processor(frames, return_tensors="pt").to(device)  # Preprocess
-    #pixel_values = inputs["pixel_values"].to(device).half()
-    
-    transform = transforms.Compose([
-        transforms.ToPILImage(),
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        ])
-
-    
-    video_tensor = torch.stack([transform(frame) for frame in frames])  # (num_frames, 3, 224, 224)
-    video_tensor = video_tensor.unsqueeze(0)  # (1, num_frames, 3, 224, 224)
-    video_tensor = video_tensor.to("cuda").half()
-    
-    with torch.no_grad():       
-        
-        outputs = model(**{"pixel_values": video_tensor}, output_attentions=True)
-        
-        #outputs = model(**{"pixel_values": pixel_values},output_attentions=True)
-        logits = outputs.logits
-        probs = torch.softmax(logits, dim=1)  # Softmax na wynikach
-        confidence, predicted_class = torch.max(probs, dim=1)  # Pobranie wartości i indeksu
-
-        print(f"Predicted probabilities: {probs}")
-        print(f"Predicted class: {predicted_class}, Confidence: {confidence.item() * 100:.2f}%")
-    
-        label =  model.config.id2label[predicted_class.item()]
-
-
-        ########################
-        attentions = outputs.attentions  # Shape: (nunm_layers,batch, heads, tokens, tokens)
-        layers = len(attentions)
-        
-
-        # Agregacja map uwagi – średnia po głowach dla każdej warstwy
-        aggregated_attentions = [torch.mean(attention, dim=1) for attention in attentions]  # Shape: (layers, tokens, tokens)
-        
-        heatmap_frames = []
-        
-        for layer_idx in range(len(attentions)):  # Loop through layers
-            for frame_idx, frame in enumerate(frames):  # Loop through frames
-                #print(frame_idx, frame.shape, 'frame')
-                attention_map = aggregated_attentions[layer_idx][0, frame_idx].cpu().numpy()  # Attention for the specific frame
-                # Remove CLS token 
-                attention_map = attention_map[1:]
-                # Get the correct shape for reshaping
-                num_patches = attention_map.shape[0] 
-                num_patches_h = int(np.sqrt(num_patches))
-                num_patches_w = num_patches_h
-                
-                #print(f"Layer {layer_idx}, Frame {frame_idx}: Tokens {num_patches}")
-                #print(f"Expected patches: {num_patches_h * num_patches_w}, but got {num_patches}")
-
-                # Jeśli mamy za dużo tokenów, obcinamy
-                if num_patches > num_patches_h * num_patches_w:
-                    attention_map = attention_map[:num_patches_h * num_patches_w]
-                
-                # Reshape do formatu (H, W)
-                attention_map = attention_map.reshape(num_patches_h, num_patches_w)
-      
-                # Overlay attention on the frame
-                attention_image = overlay_attention(frame, attention_map)                                                                                                                                              
-                heatmap_frames.append(attention_image)
-            
-        
-        # Zapisujemy jako GIF
-        imageio.mimsave("static/attention_heatmap.gif", heatmap_frames, duration=0.2)
-
-    return label, confidence.item()
+    return model.eval()
 
 def overlay_attention(image, attention_map):
-    """Overlay an attention map on an image"""
+    """
+    Overlays a normalized attention map on a given image using a colormap for better visualization.
+    
+    Parameters:
+        image (PIL.Image or np.ndarray): The image on which the attention map will be overlayed. 
+                                         It can be a PIL image or a NumPy array.
+        attention_map (np.ndarray): A 1D or 2D NumPy array representing the attention map. 
+                                    It should either be flat or a 2D array of the same size as the image's resolution.
+    
+    Returns:
+        PIL.Image: The resulting image with the attention map overlayed, in PIL format.
+
+    Raises:
+        ValueError: If the attention map is None or empty.
+    
+    Notes:
+        - The attention map is resized to match the dimensions of the input image.
+        - The colormap 'JET' is used for better visualization of the attention map.
+        - The final image is a blend of the original image and the attention map, with the attention map contributing 40% and the original image contributing 60%.
+    """
     if isinstance(image, np.ndarray):
         height, width = image.shape[:2]  # NumPy
     else:
         width, height = image.size  # PIL
-
-    #print(f"Size image: {width}x{height}")
-    #print(f"Attention map shape: {attention_map.shape} dtype: {attention_map.dtype}")
-
-
+    
+    # Validate the attention map
     if attention_map is None or attention_map.size == 0:
         raise ValueError("attention_map is null!")
     
-    attention_map = attention_map.astype(np.float32)
+    attention_map = attention_map.astype(np.float32) # Convert attention map to float32 for precision
     
-
+    # If the attention map is 1D, reshape it to 2D (square) based on its length
     if len(attention_map.shape) == 1:
         side = int(np.sqrt(attention_map.shape[0]))
         attention_map = attention_map[:side**2].reshape(side, side)
-    
+
+    # Resize the attention map to the dimensions of the image
     attention_map = cv2.resize(attention_map, (width, height))
-    attention_map = (attention_map - attention_map.min()) / (attention_map.max() - attention_map.min())  # Normalize
+    # Normalize the attention map to [0, 1]
+    attention_map = (attention_map - attention_map.min()) / (attention_map.max() - attention_map.min())
    
     # Convert PIL image to NumPy
     image_np = np.array(image).astype(np.float32) / 255.0
@@ -170,25 +111,6 @@ def overlay_attention(image, attention_map):
     
     return Image.fromarray(blended_image)
 
-
-def init_model():
-    #model_path="./final_model"
-    model = TimesformerForVideoClassification.from_pretrained('cvproject/final_model', output_attentions=True)
-    
-    return model.eval()
-
-    
-
-
-
-
-
-
-
-
-
-
-################################################
 
 def combine_divided_attention(attn_t, attn_s):
     """

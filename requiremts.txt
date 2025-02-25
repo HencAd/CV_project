@@ -11,6 +11,9 @@ scikit-learn
 Pillow
 wand
 bitsandbytes
+opencv-python
+imageio
+einops
 
 flask
 
